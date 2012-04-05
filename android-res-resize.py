@@ -4,6 +4,26 @@
 	(c) 2011 Johannes Lindenbaum
 	
 	License: Do what you want, give credit where credit is due
+	
+	Description:
+		The script will traverse a directory, assuming it's the folder
+		containing your xhdpi images.
+		It will resize each image and store it in ../drawable-SCALE-TYPE/
+		Assuming your folder containing xhdpi images, you will end up
+		with the following folder structure:
+			drawable/
+			drawable-ldpi/
+			drawable-mdpi/
+			drawable-hdpi/
+		The scaling values are used from the android developer site and are:
+			xhdpi = 1
+			hdpi = 0.75
+			mdpi = 0.5
+			ldpi = 0.5 * 0.75
+			
+	Usage
+	python android-res-resize.py --foler FOLDER-TO-PROCESS	
+	
 """
 
 import argparse
@@ -19,7 +39,7 @@ class AndroidResResize:
 		'ldpi': 0.5 * 0.75,
 	}
 	
-	ACCEPTED_EXTENSIONS = ['.png']
+	ACCEPTED_EXTENSIONS = ['.png', '.jpg']
 	
 	SILENCE = False
 	
