@@ -66,49 +66,63 @@ class AndroidResResize:
             self.log("Creating output directory for image.")
             os.makedirs(directory)
 
-    def resizeAllInFolder(self, path):
-        self.log("Processing folder: " + path)
+    """
+    Process all files in a folder iff these do not have
+    illegal extensions and are not NinePatch files
+    """
+    def resizeAllInFolder(self, inputPath):
+        self.log("Processing folder: " + inputPath)
 
         # determine trailing slash
-        if path[-1:] != "/":
-            path = path + "/"
+        # if path[-1:] != "/":
+        #     path = path + "/"
 
-        for fileName in os.listdir(path):
-            fullPath = os.path.join (path, fileName)
-            baseName, fileExtension = os.path.splitext(fullPath)
+        for fileName in os.listdir(inputPath):
+            # when bulk processing a folder ignore NinePatch files
+            if fileName[-6:] != ".9.png":
+                self.processFile(inputPath, fileName)
+    
+    """
+    Process an individual file. This includes NinePatch files
+    """
+    def processFile(self, inputDirectory, fileName):
+        # determine file extension
+        filePath = os.path.join(inputDirectory, fileName)
+        baseName, fileExtension = os.path.splitext(filePath)
+        
+        # only consider illegal extensions here - but process NinePatch
+        if fileExtension in self.ACCEPTED_EXTENSIONS:
+            
+            for scale in self.SCALES:
+                self.log("Processing (" + scale + "): " + filePath)
 
-            if fileExtension in self.ACCEPTED_EXTENSIONS and fullPath[-6:] != ".9.png":
+                # get scale value
+                scaleValue = self.SCALES[scale]
 
-                for scale in self.SCALES:
-                    self.log("Processing (" + scale + "): " + fullPath)
+                # resize image
+                image = Image.open(filePath)
+                imageSize = image.size
+                newWidth = int(round(imageSize[0] * scaleValue))
+                newHeight = int(round(imageSize[1] * scaleValue))
+                imageHdpi = image.resize((newWidth, newHeight), Image.ANTIALIAS)
 
-                    # get scale value
-                    scaleValue = self.SCALES[scale]
-
-                    # resize image
-                    image = Image.open(fullPath)
-                    imageSize = image.size
-                    newWidth = int(round(imageSize[0] * scaleValue))
-                    newHeight = int(round(imageSize[1] * scaleValue))
-                    imageHdpi = image.resize((newWidth, newHeight), Image.ANTIALIAS)
-
-                    # determine if where we're writing to exists
-                    scaleDir = "../drawable-" + scale + "/"
-                    outputDirectory = os.path.join(path, scaleDir)
-                    
-                    try:
-                        self.createDirIfNonExistant(outputDirectory)
-                    except:
-                        print "Could not create output directory: " + outputDirectory
-                        return
-                        
-                    # save processed image
-                    outputFilePath = os.path.join(outputDirectory, fileName)
-                    try:
-                        self.log("Saving: " + outputFilePath)
-                        imageHdpi.save(outputFilePath)
-                    except:
-                        print "Could not save image: " + outputFilePath
+                # determine if where we're writing to exists
+                scaleDir = "../drawable-" + scale + "/"
+                outputDirectory = os.path.join(inputDirectory, scaleDir)
+            
+                try:
+                    self.createDirIfNonExistant(outputDirectory)
+                except:
+                    print "Could not create output directory: " + outputDirectory
+                    return
+                
+                # save processed image
+                outputFilePath = os.path.join(outputDirectory, fileName)
+                try:
+                    self.log("Saving: " + outputFilePath)
+                    imageHdpi.save(outputFilePath)
+                except:
+                    print "Could not save image: " + outputFilePath
 
 
 if __name__ == "__main__":
