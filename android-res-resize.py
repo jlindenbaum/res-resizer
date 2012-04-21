@@ -74,8 +74,8 @@ class AndroidResResize:
             path = path + "/"
 
         for fileName in os.listdir(path):
-            fullPath = path + fileName
-            baseName, fileExtension = os.path.splitext(path + fileName)
+            fullPath = os.path.join (path, fileName)
+            baseName, fileExtension = os.path.splitext(fullPath)
 
             if fileExtension in self.ACCEPTED_EXTENSIONS and fullPath[-6:] != ".9.png":
 
@@ -93,7 +93,9 @@ class AndroidResResize:
                     imageHdpi = image.resize((newWidth, newHeight), Image.ANTIALIAS)
 
                     # determine if where we're writing to exists
-                    outputPath = path + "../drawable-" + scale + "/"
+                    scaleDir = "../drawable-" + scale + "/"
+                    outputPath = os.path.join(path, scaleDir)
+                    
                     if os.path.exists(outputPath) == False:
                         returnValue = self.createDirectory(outputPath)
                         
@@ -102,7 +104,7 @@ class AndroidResResize:
                         
                     # save processed image
                     self.log("Saving: " + outputPath + fileName)
-                    imageHdpi.save(outputPath + fileName)
+                    imageHdpi.save(os.path.join(outputPath, fileName))
 
 
 if __name__ == "__main__":
