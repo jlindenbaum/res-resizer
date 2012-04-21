@@ -63,7 +63,7 @@ class AndroidResResize:
 			fullPath = path + fileName
 			baseName, fileExtension = os.path.splitext(path + fileName)
 			
-			if fileExtension in self.ACCEPTED_EXTENSIONS:
+			if fileExtension in self.ACCEPTED_EXTENSIONS and fullPath[-6:] != ".9.png":	
 				
 				for scale in self.SCALES:
 					if self.SILENCE == False:
