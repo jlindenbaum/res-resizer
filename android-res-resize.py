@@ -127,12 +127,22 @@ class AndroidResResize:
 
 if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for Android res/")
-    argParser.add_argument("--folder", default=None, required=True, dest="folderPath")
+    argParser.add_argument("--folder", default=None, dest="folderPath")
+    argParser.add_argument("--file", default=None, dest="filePath")
     argParser.add_argument("--silence", default=False, dest="option_silence")
     args = argParser.parse_args()
 
     resizer = AndroidResResize()
     resizer.setVerbosity(args.option_silence)
-    resizer.resizeAllInFolder(args.folderPath)
-
-    resizer.log("Done.")
+    
+    if args.folderPath != None:
+        resizer.resizeAllInFolder(args.folderPath)
+        resizer.log("Done.")
+    elif args.filePath != None:
+        inputDirectory, filePath = os.path.split(args.filePath)
+        resizer.processFile(inputDirectory, filePath)
+        resizer.log("Done.")
+    else:
+        print "Must specify file or folder to process."
+        print ""
+        print argParser.print_help()
