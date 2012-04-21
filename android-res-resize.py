@@ -50,10 +50,24 @@ class AndroidResResize:
     def setVerbosity(self, silence):
         if silence:
             self.SILENCE = silence;
+            
+    def log(self, message):
+        if self.SILENCE == False:
+            print message
+            
+    def createDirectory(self, directory):
+        self.log("Creating output directory for image.")
+
+        try:
+            os.makedirs(directory)
+            return True
+        except error:
+            print "Could not create directory: " + directory
+        
+        return False
 
     def resizeAllInFolder(self, path):
-        if self.SILENCE == False:
-            print "Processing folder " + path
+        self.log("Processing folder: " + path)
 
         # determine trailing slash
         if path[-1:] != "/":
@@ -66,8 +80,7 @@ class AndroidResResize:
             if fileExtension in self.ACCEPTED_EXTENSIONS and fullPath[-6:] != ".9.png":
 
                 for scale in self.SCALES:
-                    if self.SILENCE == False:
-                        print "Processing (" + scale + "): " + fullPath
+                    self.log("Processing (" + scale + "): " + fullPath)
 
                     # get scale value
                     scaleValue = self.SCALES[scale]
@@ -82,19 +95,14 @@ class AndroidResResize:
                     # determine if where we're writing to exists
                     outputPath = path + "../drawable-" + scale + "/"
                     if os.path.exists(outputPath) == False:
-                        if self.SILENCE == False:
-                            print "Creating output directory for image."
-
-                        try:
-                            os.makedirs(outputPath)
-                        except error:
-                            print "Could not create directory: " + outputPath
+                        returnValue = self.createDirectory(outputPath)
+                        
+                        if returnValue == False:
                             return
-
-                        if self.SILENCE == False:
-                            print "Saving: " + outputPath + fileName
-
-                        imageHdpi.save(outputPath + fileName)
+                        
+                    # save processed image
+                    self.log("Saving: " + outputPath + fileName)
+                    imageHdpi.save(outputPath + fileName)
 
 
 if __name__ == "__main__":
@@ -107,5 +115,4 @@ if __name__ == "__main__":
     resizer.setVerbosity(args.option_silence)
     resizer.resizeAllInFolder(args.folderPath)
 
-    if args.option_silence == False:
-    print "Done."
+    resizer.log("Done.")
