@@ -50,21 +50,21 @@ class AndroidResResize:
     def setVerbosity(self, silence):
         if silence:
             self.SILENCE = silence;
-            
+    
+    """
+    Print to console if script hasn't been silenced
+    """
     def log(self, message):
         if self.SILENCE == False:
             print message
-            
-    def createDirectory(self, directory):
-        self.log("Creating output directory for image.")
-
-        try:
+    
+    """
+    Create directory if it does not exist.
+    """
+    def createDirIfNonExistant(self, directory):
+        if os.path.exists(directory) == False:
+            self.log("Creating output directory for image.")
             os.makedirs(directory)
-            return True
-        except error:
-            print "Could not create directory: " + directory
-        
-        return False
 
     def resizeAllInFolder(self, path):
         self.log("Processing folder: " + path)
@@ -94,17 +94,21 @@ class AndroidResResize:
 
                     # determine if where we're writing to exists
                     scaleDir = "../drawable-" + scale + "/"
-                    outputPath = os.path.join(path, scaleDir)
+                    outputDirectory = os.path.join(path, scaleDir)
                     
-                    if os.path.exists(outputPath) == False:
-                        returnValue = self.createDirectory(outputPath)
-                        
-                        if returnValue == False:
-                            return
+                    try:
+                        self.createDirIfNonExistant(outputDirectory)
+                    except:
+                        print "Could not create output directory: " + outputDirectory
+                        return
                         
                     # save processed image
-                    self.log("Saving: " + outputPath + fileName)
-                    imageHdpi.save(os.path.join(outputPath, fileName))
+                    outputFilePath = os.path.join(outputDirectory, fileName)
+                    try:
+                        self.log("Saving: " + outputFilePath)
+                        imageHdpi.save(outputFilePath)
+                    except:
+                        print "Could not save image: " + outputFilePath
 
 
 if __name__ == "__main__":
