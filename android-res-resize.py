@@ -114,6 +114,11 @@ class AndroidResResize:
                 imageSize = image.size
                 newWidth = int(round(imageSize[0] * scaleValue))
                 newHeight = int(round(imageSize[1] * scaleValue))
+                
+                # be sure the with is never smaller than 1
+                if newWidth < 1: newWidth = 1
+                if newHeight < 1: newHeight = 1
+                
                 imageHdpi = image.resize((newWidth, newHeight), Image.ANTIALIAS)
 
                 # determine if where we're writing to exists
