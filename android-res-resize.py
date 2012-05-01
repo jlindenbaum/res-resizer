@@ -1,7 +1,7 @@
 
 """
-    Version 0.2
-    (c) 2011 Johannes Lindenbaum
+    Version 0.2.1
+    (c) 2012 Johannes Lindenbaum
     
     License: MIT License, see LICENSE file for details.
     
@@ -82,10 +82,6 @@ class AndroidResResize:
     """
     def resizeAllInFolder(self, inputPath):
         self.log("Processing folder: " + inputPath)
-
-        # determine trailing slash
-        # if path[-1:] != "/":
-        #     path = path + "/"
 
         for fileName in os.listdir(inputPath):
             # when bulk processing a folder ignore NinePatch files
