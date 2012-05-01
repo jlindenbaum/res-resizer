@@ -1,0 +1,10 @@
+0.2.1
+- Fix issue where image height/width could be < 1 (https://github.com/peterwilli)
+
+0.2
+- Ability to process individual images as well as folders
+- Ability to use on Windows (untested)
+- Silence logging
+
+0.1
+- Initial
