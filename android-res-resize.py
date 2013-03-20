@@ -2,9 +2,9 @@
 """
     Version 0.2.1
     (c) 2012 Johannes Lindenbaum
-    
+
     License: MIT License, see LICENSE file for details.
-    
+
     Description:
         - Either the script traverse a directory, assuming it is the
           XHDPI folder, and process all files into the three lower scale
@@ -12,28 +12,28 @@
           where SCALe is the respective, lower scale type being processed...
         - Or the script will process an individual file into the three lower
           scale types.
-    
+
         Assuming your folder contains XHDPI images, you will end up
         with the following folder structure:
             drawable/
             drawable-ldpi/
             drawable-mdpi/
             drawable-hdpi/
-        
+
         The scaling values are used from the android developer site and are:
             xhdpi = 1
             hdpi = 0.75
             mdpi = 0.5
             ldpi = 0.5 * 0.75
-    
+
     Usage:
         python android-res-resize.py --folder FOLDER-TO-PROCESS
-        
+
         python android-res-resiez.py --file FILE-TO-PROCESS
-        
+
         Hint: the output can be silenced by adding --silence True
               to the argument list.
-    
+
 """
 
 import argparse
@@ -60,14 +60,14 @@ class AndroidResResize:
     def setVerbosity(self, silence):
         if silence:
             self.SILENCE = silence;
-    
+
     """
     Print to console if script hasn't been silenced
     """
     def log(self, message):
         if self.SILENCE == False:
             print message
-    
+
     """
     Create directory if it does not exist.
     """
@@ -87,7 +87,7 @@ class AndroidResResize:
             # when bulk processing a folder ignore NinePatch files
             if fileName[-6:] != ".9.png":
                 self.processFile(inputPath, fileName)
-    
+
     """
     Process an individual file. This includes NinePatch files
     """
@@ -95,10 +95,10 @@ class AndroidResResize:
         # determine file extension
         filePath = os.path.join(inputDirectory, fileName)
         baseName, fileExtension = os.path.splitext(filePath)
-        
+
         # only consider illegal extensions here - but process NinePatch
         if fileExtension in self.ACCEPTED_EXTENSIONS:
-            
+
             for scale in self.SCALES:
                 self.log("Processing (" + scale + "): " + filePath)
 
@@ -110,23 +110,23 @@ class AndroidResResize:
                 imageSize = image.size
                 newWidth = int(round(imageSize[0] * scaleValue))
                 newHeight = int(round(imageSize[1] * scaleValue))
-                
+
                 # be sure the with is never smaller than 1
                 if newWidth < 1: newWidth = 1
                 if newHeight < 1: newHeight = 1
-                
+
                 imageHdpi = image.resize((newWidth, newHeight), Image.ANTIALIAS)
 
                 # determine if where we're writing to exists
                 scaleDir = "../drawable-" + scale + "/"
                 outputDirectory = os.path.join(inputDirectory, scaleDir)
-            
+
                 try:
                     self.createDirIfNonExistant(outputDirectory)
                 except:
                     print "Could not create output directory: " + outputDirectory
                     return
-                
+
                 # save processed image
                 outputFilePath = os.path.join(outputDirectory, fileName)
                 try:
@@ -138,6 +138,7 @@ class AndroidResResize:
 
 if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for Android res/")
+    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xhdpi subfolder and resize all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folderPath")
     argParser.add_argument("--file", default=None, dest="filePath")
     argParser.add_argument("--silence", default=False, dest="option_silence")
@@ -145,8 +146,16 @@ if __name__ == "__main__":
 
     resizer = AndroidResResize()
     resizer.setVerbosity(args.option_silence)
-    
-    if args.folderPath != None:
+
+    if args.prod:
+        from os.path import join, dirname, abspath, exists
+        folderPath = join(dirname(abspath(__file__)),"res/drawable-xhdpi")
+        if exists(folderPath):
+            resizer.resizeAllInFolder(args.folderPath)
+            resizer.log("Done.")
+        else:
+            print "Couldn't find res/drawable-xhdpi from your current location."
+    elif args.folderPath != None:
         resizer.resizeAllInFolder(args.folderPath)
         resizer.log("Done.")
     elif args.filePath != None:
