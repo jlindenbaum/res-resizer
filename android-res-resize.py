@@ -1,38 +1,11 @@
 
 """
-    Version 0.2.1
-    (c) 2012 Johannes Lindenbaum
+    Version 0.2.2
+    (c) 2012-2013 Johannes Lindenbaum
 
     License: MIT License, see LICENSE file for details.
 
-    Description:
-        - Either the script traverse a directory, assuming it is the
-          XHDPI folder, and process all files into the three lower scale
-          types (HDPI, MDPI, LDPI) and store them in ../drawable-SCALE/ -
-          where SCALe is the respective, lower scale type being processed...
-        - Or the script will process an individual file into the three lower
-          scale types.
-
-        Assuming your folder contains XHDPI images, you will end up
-        with the following folder structure:
-            drawable/
-            drawable-ldpi/
-            drawable-mdpi/
-            drawable-hdpi/
-
-        The scaling values are used from the android developer site and are:
-            xhdpi = 1
-            hdpi = 0.75
-            mdpi = 0.5
-            ldpi = 0.5 * 0.75
-
-    Usage:
-        python android-res-resize.py --folder FOLDER-TO-PROCESS
-
-        python android-res-resiez.py --file FILE-TO-PROCESS
-
-        Hint: the output can be silenced by adding --silence True
-              to the argument list.
+    See README.md for usage and examples.
 
 """
 
@@ -139,9 +112,9 @@ class AndroidResResize:
 if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for Android res/")
     argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xhdpi subfolder and resize all the images in that folder.")
-    argParser.add_argument("--folder", default=None, dest="folderPath")
-    argParser.add_argument("--file", default=None, dest="filePath")
-    argParser.add_argument("--silence", default=False, dest="option_silence")
+    argParser.add_argument("--folder", default=None, dest="folderPath", help="Resizes all images in provided folder path.")
+    argParser.add_argument("--file", default=None, dest="filePath", help="Resizes individual file provided by folder path.")
+    argParser.add_argument("--silence", default=False, dest="option_silence", help="Silences all output.")
     args = argParser.parse_args()
 
     resizer = AndroidResResize()

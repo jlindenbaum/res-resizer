@@ -1,3 +1,7 @@
+0.2.2
+- Add --prod flag to search for res/drawables-xhdpi in current working directory and process (https://github.com/tskulbru)
+- Expanded help descriptions for all flags.
+
 0.2.1
 - Fix issue where image height/width could be < 1 (https://github.com/peterwilli)
 
