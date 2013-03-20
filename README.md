@@ -1,22 +1,26 @@
 Welcome
 ====
-Android Res Resize is a script that will allow you to automatically process
-your android project's xhdpi drawables into hdpi, mdpi and ldpi resources.
+Android Res Resize is a script that allows you to automatically process
+your Android project's xhdpi drawables into hdpi, mdpi, and ldpi resources.
 
-You can either bulk process an entire folder, or an individual image.
+You can process an entire xhdpi folder or an individual image.
 
-Assuming you point this script at the xhdpi directory the script will
-go over every png and jpg, and scale them down to hdpi, mdpi and ldpi.
-The script will sort these images to their proper locations as well.
+Note: It's always assumed you point this script at an xhdpi folder or image.
+
+The script will go over the provided path (or current working directory)
+and scale every PNG and JPG to hdpi, mdpi, and ldpi images.
+
+The script also sorts the scaled images into their appropriate drawables
+folders.
 
 Example
 ====
-Point the script at "res/drawables", which the script assumes contains
+Point the script at "res/drawables-xhdpi", which the script assumes contains
 your xhdpi images.
 Should your folder for the lower quality images not exist, the script
 will create the folders for you. You will end up with:
 
-* res/drawables/
+* res/drawables-xhdpi/
 * res/drawables-hdpi/
 * res/drawables-mdpi/
 * res/drawables-ldpi/
@@ -24,9 +28,14 @@ will create the folders for you. You will end up with:
 Usage
 ====
 
-`$ python android-res-resize.py --folder ~/MyProject/res/drawables-xhdpi`
+`$ python android-res-resize.py --folder ~/MyProject/res/drawables-xhdpi` resize all
+found images in xhdpi folder.
 
 `$ python android-res-resize.py --file ~/MyProjects/res/drawables-xhdpi/my_image.png`
+resize specific image only.
+
+`$ python android-res-resize.py --prod` automatically find xhdpi folder and execute
+as with --folder option.
 
 Hint: all output can be silenced by adding the `--silence` option.
 
