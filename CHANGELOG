@@ -1,4 +1,4 @@
-0.2.2
+0.3
 - Add --prod flag to search for res/drawables-xhdpi in current working directory and process (https://github.com/tskulbru)
 - Expanded help descriptions for all flags.
 

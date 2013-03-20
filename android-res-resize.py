@@ -1,6 +1,6 @@
 
 """
-    Version 0.2.2
+    Version 0.3
     (c) 2012-2013 Johannes Lindenbaum
 
     License: MIT License, see LICENSE file for details.
