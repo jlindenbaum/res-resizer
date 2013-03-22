@@ -28,16 +28,18 @@ will create the folders for you. You will end up with:
 Usage
 ====
 
-`$ python android-res-resize.py --folder ~/MyProject/res/drawables-xhdpi` resize all
+`$ chmod +x android-res-resize.py` Makes the script runnable.
+
+`$./android-res-resize.py --folder ~/MyProject/res/drawables-xhdpi` resize all
 found images in xhdpi folder.
 
-`$ python android-res-resize.py --file ~/MyProjects/res/drawables-xhdpi/my_image.png`
+`$ ./android-res-resize.py --file ~/MyProjects/res/drawables-xhdpi/my_image.png`
 resize specific image only.
 
-`$ python android-res-resize.py --prod` automatically find xhdpi folder and execute
+`$ ./android-res-resize.py --prod` automatically find xhdpi folder and execute
 as with --folder option.
 
-Hint: all output can be silenced by adding the `--silence` option.
+Hint: all output can be silenced by adding the `--silence` option. You can also exclude a scale using the `--exclude-scale [ldpi|mdpi|hdpi]` option.
 
 Feedback & Improvements
 ====
