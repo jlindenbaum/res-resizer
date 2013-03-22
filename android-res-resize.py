@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 """
     Version 0.3
