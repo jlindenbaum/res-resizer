@@ -125,7 +125,7 @@ if __name__ == "__main__":
         from os.path import join, dirname, abspath, exists
         folderPath = join(dirname(abspath(__file__)),"res/drawable-xhdpi")
         if exists(folderPath):
-            resizer.resizeAllInFolder(args.folderPath)
+            resizer.resizeAllInFolder(folderPath)
             resizer.log("Done.")
         else:
             print "Couldn't find res/drawable-xhdpi from your current location."
