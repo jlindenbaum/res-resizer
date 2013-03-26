@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 """
     Version 0.3
@@ -26,6 +27,8 @@ class AndroidResResize:
 
     SILENCE = False
 
+    EXCLUDE_SCALE = ""
+
     """
     Set verbosity level of application.
     Supports verbose or silent
@@ -33,6 +36,13 @@ class AndroidResResize:
     def setVerbosity(self, silence):
         if silence:
             self.SILENCE = silence;
+
+    """
+    Set a scale to exclude from processing.
+    Supports ldpi, mdpi, hdpi
+    """
+    def setExcludeScale(self, scale):
+        self.EXCLUDE_SCALE = scale;
 
     """
     Print to console if script hasn't been silenced
@@ -73,6 +83,9 @@ class AndroidResResize:
         if fileExtension in self.ACCEPTED_EXTENSIONS:
 
             for scale in self.SCALES:
+                if scale == self.EXCLUDE_SCALE:
+                    continue
+
                 self.log("Processing (" + scale + "): " + filePath)
 
                 # get scale value
@@ -114,17 +127,19 @@ if __name__ == "__main__":
     argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xhdpi subfolder and resize all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folderPath", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="filePath", help="Resizes individual file provided by folder path.")
+    argParser.add_argument("--exclude-scale", default=None, dest="scale", help="Excludes a specific scale, such as ldpi")
     argParser.add_argument("--silence", default=False, dest="option_silence", help="Silences all output.")
     args = argParser.parse_args()
 
     resizer = AndroidResResize()
     resizer.setVerbosity(args.option_silence)
+    resizer.setExcludeScale(args.scale)
 
     if args.prod:
         from os.path import join, dirname, abspath, exists
         folderPath = join(dirname(abspath(__file__)),"res/drawable-xhdpi")
         if exists(folderPath):
-            resizer.resizeAllInFolder(args.folderPath)
+            resizer.resizeAllInFolder(folderPath)
             resizer.log("Done.")
         else:
             print "Couldn't find res/drawable-xhdpi from your current location."
