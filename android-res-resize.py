@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Version 0.3
+    Version 0.3.1
     (c) 2012-2013 Johannes Lindenbaum
 
     License: MIT License, see LICENSE file for details.
@@ -16,6 +16,8 @@ import Image
 
 
 class AndroidResResize:
+
+    VERSION = '0.3.1'
 
     SCALES = {
         'hdpi': 0.75,
@@ -83,7 +85,7 @@ class AndroidResResize:
         if fileExtension in self.ACCEPTED_EXTENSIONS:
 
             for scale in self.SCALES:
-                if scale in self.EXCLUDE_SCALE:
+                if self.EXCLUDE_SCALE != None and scale in self.EXCLUDE_SCALE:
                     continue
 
                 self.log("Processing (" + scale + "): " + filePath)
@@ -128,14 +130,17 @@ if __name__ == "__main__":
     argParser.add_argument("--folder", default=None, dest="folderPath", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="filePath", help="Resizes individual file provided by folder path.")
     argParser.add_argument("--exclude-scale", default=None, dest="scale", nargs="+", help="Excludes a scale, such as ldpi. Separate multiple scales by spaces.")
-    argParser.add_argument("--silence", default=False, dest="option_silence", help="Silences all output.")
+    argParser.add_argument("--silence", default=False, action="store_true", dest="option_silence", help="Silences all output.")
+    argParser.add_argument("-v", default=False, action="store_true", dest="show_version", help="Shows the version.")
     args = argParser.parse_args()
 
     resizer = AndroidResResize()
     resizer.setVerbosity(args.option_silence)
     resizer.setExcludeScale(args.scale)
 
-    if args.prod:
+    if args.show_version:
+        print resizer.VERSION
+    elif args.prod:
         from os.path import join, dirname, abspath, exists
         folderPath = join(dirname(abspath(__file__)),"res/drawable-xhdpi")
         if exists(folderPath):
