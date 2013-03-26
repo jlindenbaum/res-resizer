@@ -27,7 +27,7 @@ class AndroidResResize:
 
     SILENCE = False
 
-    EXCLUDE_SCALE = ""
+    EXCLUDE_SCALE = []
 
     """
     Set verbosity level of application.
@@ -83,7 +83,7 @@ class AndroidResResize:
         if fileExtension in self.ACCEPTED_EXTENSIONS:
 
             for scale in self.SCALES:
-                if scale == self.EXCLUDE_SCALE:
+                if scale in self.EXCLUDE_SCALE:
                     continue
 
                 self.log("Processing (" + scale + "): " + filePath)
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xhdpi subfolder and resize all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folderPath", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="filePath", help="Resizes individual file provided by folder path.")
-    argParser.add_argument("--exclude-scale", default=None, dest="scale", help="Excludes a specific scale, such as ldpi")
+    argParser.add_argument("--exclude-scale", default=None, dest="scale", nargs="+", help="Excludes a scale, such as ldpi. Separate multiple scales by spaces.")
     argParser.add_argument("--silence", default=False, dest="option_silence", help="Silences all output.")
     args = argParser.parse_args()
 
