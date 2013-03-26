@@ -1,3 +1,9 @@
+0.3.1
+-- Shebang added to allow executable file (chmod +x) (https://github.com/tskulbru)
+-- --exclude-scale option added. Do not process densities that are excluded. (https://github.com/tskulbru)
+-- Added -v flag to print script version
+-- Fixed bug with --silence option not taking as expected
+
 0.3
 - Add --prod flag to search for res/drawables-xhdpi in current working directory and process (https://github.com/tskulbru)
 - Expanded help descriptions for all flags.
