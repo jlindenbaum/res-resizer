@@ -141,9 +141,8 @@ if __name__ == "__main__":
     if args.show_version:
         print resizer.VERSION
     elif args.prod:
-        from os.path import join, dirname, abspath, exists
-        folderPath = join(dirname(abspath(__file__)),"res/drawable-xhdpi")
-        if exists(folderPath):
+        folderPath = os.path.join(os.getcwd(),"res/drawable-xhdpi")
+        if os.path.exists(folderPath):
             resizer.resizeAllInFolder(folderPath)
             resizer.log("Done.")
         else:
