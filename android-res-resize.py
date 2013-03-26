@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Version 0.3.1
+    Version 0.3.2
     (c) 2012-2013 Johannes Lindenbaum
 
     License: MIT License, see LICENSE file for details.
