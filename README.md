@@ -39,7 +39,7 @@ resize specific image only.
 `$ ./android-res-resize.py --prod` automatically find xhdpi folder and execute
 as with --folder option.
 
-`$ ./android-res-resize.py --exclude-scale [ldpi|mdpi|hdpi]` do not scale down to this density. Exclude multiple at once: `--exclude-scale ldpi, mdpi`.
+`$ ./android-res-resize.py --exclude-scale [ldpi|mdpi|hdpi]` do not scale down to this density. Exclude multiple at once: `--exclude-scale ldpi mdpi`.
 
 Hint: all output can be silenced by adding the `--silence` option.
 
