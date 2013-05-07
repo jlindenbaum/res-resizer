@@ -12,7 +12,7 @@
 
 import argparse
 import os
-import Image
+from PIL.Image import Image
 
 
 class AndroidResResize:
@@ -51,7 +51,7 @@ class AndroidResResize:
     """
     def log(self, message):
         if self.SILENCE == False:
-            print message
+            print(message)
 
     """
     Create directory if it does not exist.
@@ -112,7 +112,7 @@ class AndroidResResize:
                 try:
                     self.createDirIfNonExistant(outputDirectory)
                 except:
-                    print "Could not create output directory: " + outputDirectory
+                    print("Could not create output directory: " + outputDirectory)
                     return
 
                 # save processed image
@@ -121,7 +121,7 @@ class AndroidResResize:
                     self.log("Saving: " + outputFilePath)
                     imageHdpi.save(outputFilePath)
                 except:
-                    print "Could not save image: " + outputFilePath
+                    print("Could not save image: " + outputFilePath)
 
 
 if __name__ == "__main__":
@@ -139,14 +139,14 @@ if __name__ == "__main__":
     resizer.setExcludeScale(args.scale)
 
     if args.show_version:
-        print resizer.VERSION
+        print(resizer.VERSION)
     elif args.prod:
         folderPath = os.path.join(os.getcwd(),"res/drawable-xhdpi")
         if os.path.exists(folderPath):
             resizer.resizeAllInFolder(folderPath)
             resizer.log("Done.")
         else:
-            print "Couldn't find res/drawable-xhdpi from your current location."
+            print("Couldn't find res/drawable-xhdpi from your current location.")
     elif args.folderPath != None:
         resizer.resizeAllInFolder(args.folderPath)
         resizer.log("Done.")
@@ -155,6 +155,6 @@ if __name__ == "__main__":
         resizer.processFile(inputDirectory, filePath)
         resizer.log("Done.")
     else:
-        print "Must specify file or folder to process."
-        print ""
-        print argParser.print_help()
+        print("Must specify file or folder to process.")
+        print("")
+        print(argParser.print_help())
