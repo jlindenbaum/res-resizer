@@ -1,5 +1,5 @@
 Welcome
-====
+=======
 Res Resizer is a script that allows you to automatically process resource
 files for both Android and iOS projects.
 
@@ -19,7 +19,7 @@ the @2x omitted from the new file name. Keep in mind this overwrites
 any existing file with that file name.
 
 Android
-====
+=======
 For 0.4.0 I have eliminated outputting images for the ldpi density. The
 Android documentation no longer lists this as a requirement.
 
@@ -29,7 +29,7 @@ and mdpi resources in their respective folders. If these folders don't exist
 the script will create them for you.
 
 Android Example
-====
+===============
 Point the script at "res/drawables-xxhdpi", which the script assumes contains
 your xxhdpi images.
 Should your folder for the lower quality images not exist, the script will
@@ -41,7 +41,7 @@ create the folders for you. You will end up with:
 * res/drawables-mdpi/
 
 Usage
-====
+=====
 
 `$ chmod +x resizer.py` Makes the script runnable.
 
@@ -57,7 +57,7 @@ resize only one specific image.
 
 
 Android
-----
+-------
 `$./resizer.py -a --folder ~/MyProject/res/drawables-xxhdpi` resize all
 found images in xxhdpi folder. Script will output in Android style.
 
@@ -71,5 +71,5 @@ as with --folder option. Note: --prod does not work with iOS flag.
 Exclude multiple at once: `--exclude-scale ldpi mdpi`.
 
 Feedback & Improvements
-====
+=======================
 Please, let me know what can be improved. Fork it!
