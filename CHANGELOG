@@ -1,3 +1,9 @@
+0.4.0
+- iOS assets can now be resized too!
+- Added flag for -i or -a to target iOS or Android projects.
+- Android defauly folder should now be xxhdpi.
+- Removed android ldpi, no longer required according to Android documentation.
+
 0.3.2
 - Changes absolute path to relative path when using --prod
 
