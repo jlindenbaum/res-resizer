@@ -2,6 +2,7 @@
 AUTHORS.txt
 CHANGELOG.txt
 LICENSE.txt
+README.md
 setup.py
 resresizer/__init__.py
 resresizer/resizer.py
