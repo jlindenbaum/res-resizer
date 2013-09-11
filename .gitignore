@@ -1,5 +1,5 @@
-venv_arr/
 .DS_Store
 Thumbs.db
 *.pyc
 .idea/
+dist/
