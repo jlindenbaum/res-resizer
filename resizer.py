@@ -92,9 +92,12 @@ class BaseResizer(object):
         return new_image
 
     def can_process_file(self, file_extension):
-        if file_extension in self.ACCEPTED_EXTENSIONS:
-            return True
-        return False
+        """
+        Determines if we can process the file based off the file extension
+        :param file_extension:
+        :return:
+        """
+        return file_extension in self.ACCEPTED_EXTENSIONS
 
     def process_file(self, input_directory, file_name):
         """
@@ -124,7 +127,7 @@ class AndroidResResize(BaseResizer):
 
                 try:
                     self.create_dir_if_nonexistant(output_directory)
-                except Exception:
+                except:
                     print("Could not create output directory: " + output_directory)
                     return
 
@@ -133,7 +136,7 @@ class AndroidResResize(BaseResizer):
                 try:
                     self.log("Saving: " + output_file_path)
                     new_image.save(output_file_path)
-                except Exception:
+                except:
                     print("Could not save image: " + output_file_path)
 
 
@@ -142,11 +145,26 @@ class IOSResResize(BaseResizer):
         'non-retina': 0.5,
     }
 
+    def should_process_file(self, base_name, file_extension):
+        """
+        Determine if iOS should process this image based off the @2x
+        in the file name
+        :param base_name:
+        :param file_extension:
+        :return:
+        """
+        can_process = self.can_process_file(file_extension)
+        should_process = False
+        if can_process:
+            if "@2x" in base_name:
+                should_process = True
+        return should_process
+
     def process_file(self, input_directory, file_name):
         # determine file extension
         file_path = os.path.join(input_directory, file_name)
         base_name, file_extension = os.path.splitext(file_path)
-        if self.can_process_file(file_extension):
+        if self.should_process_file(base_name, file_extension):
             for scale_name, scale_value in self.SCALES.items():
                 new_image = self.resize_image(file_path, scale_value)
 
@@ -163,7 +181,7 @@ if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
     argParser.add_argument("-i", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
     argParser.add_argument("-a", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
-    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xhdpi subfolder and resize all the images in that folder.")
+    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxhdpi subfolder and resizes all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
     argParser.add_argument("--exclude-scale", default=None, dest="scale", nargs="+", help="Excludes a scale. Separate multiple scales by spaces.")
