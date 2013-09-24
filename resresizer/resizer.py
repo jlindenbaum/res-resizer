@@ -69,6 +69,15 @@ class BaseResizer(object):
             if file_name[-6:] not in self.UNACCEPTED_EXTENSIONS:
                 self.process_file(input_path, file_name)
 
+    def convert_all_in_folder(self, input_path):
+        self.log("Processing folder: " + input_path)
+        
+        for file_name in os.listdir(input_path):
+            base_name, file_extension = os.path.splitext(file_name)
+            if self.can_process_file(file_extension):
+                image = Image.open(os.path.join(input_path, file_name))
+                image.save(os.path.join(input_path, file_name), 'PNG')
+
     def resize_image(self, file_path, scale):
         """
         Opens the passed file_path, resizes that image with scale and
@@ -181,6 +190,7 @@ if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
     argParser.add_argument("-i", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
     argParser.add_argument("-a", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
+    argParser.add_argument("--pngconv", default=False, action="store_true", dest="png_convert", help="Convert an image to PNG format")
     argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxhdpi subfolder and resizes all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
@@ -210,7 +220,9 @@ if __name__ == "__main__":
         resizer.set_verbosity(args.option_silence)
         resizer.set_exclude_scale(args.scale)
 
-        if args.prod:
+        if args.png_convert and args.folder_path is not None:
+            resizer.convert_all_in_folder(args.folder_path)
+        elif args.prod:
             folder_path = os.path.join(os.getcwd(), "res/drawable-xxhdpi")
             if os.path.exists(folder_path):
                 resizer.resize_all_in_folder(folder_path)
