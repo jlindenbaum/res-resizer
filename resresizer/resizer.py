@@ -33,7 +33,7 @@ class BaseResizer(object):
     def set_exclude_scale(self, scale):
         """
         Set a scale to exclude from processing.
-        Android supports ldpi, mdpi, hdpi
+        Android supports mdpi, hdpi, xhdpi, xxhdpi
         iOS supports non-retina
         :param scale:
         """
@@ -120,6 +120,11 @@ class AndroidResResize(BaseResizer):
         'xhdpi': float(2) / 3, # xhdpi is 2/3 of xxhdpi
         'hdpi': float(1.5) / 3,
         'mdpi': float(1) / 3,
+    }
+    
+    NOXX_SCALES = {
+        'hdpi': 0.75,
+        'mdpi': 0.5,
     }
 
     def process_file(self, input_directory, file_name):
