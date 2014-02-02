@@ -108,7 +108,7 @@ class BaseResizer(object):
 
 class AndroidResResize(BaseResizer):
     SCALES = {
-        'xxhdpi' : float(3) / 4 # xxhdpi is 3/4 of xxxhdpi
+        'xxhdpi' : float(3) / 4, # xxhdpi is 3/4 of xxxhdpi
         'xhdpi': float(2) / 4, 
         'hdpi': float(1.5) / 4,
         'mdpi': float(1) / 4,
