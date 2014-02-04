@@ -108,9 +108,10 @@ class BaseResizer(object):
 
 class AndroidResResize(BaseResizer):
     SCALES = {
-        'xhdpi': float(2) / 3, # xhdpi is 2/3 of xxhdpi
-        'hdpi': float(1.5) / 3,
-        'mdpi': float(1) / 3,
+        'xxhdpi' : float(3) / 4, # xxhdpi is 3/4 of xxxhdpi
+        'xhdpi': float(2) / 4, 
+        'hdpi': float(1.5) / 4,
+        'mdpi': float(1) / 4,
     }
 
     def process_file(self, input_directory, file_name):
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
     argParser.add_argument("-i", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
     argParser.add_argument("-a", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
-    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxhdpi subfolder and resizes all the images in that folder.")
+    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxxhdpi subfolder and resizes all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
     argParser.add_argument("--exclude-scale", default=None, dest="scale", nargs="+", help="Excludes a scale. Separate multiple scales by spaces.")
@@ -211,12 +212,12 @@ if __name__ == "__main__":
         resizer.set_exclude_scale(args.scale)
 
         if args.prod:
-            folder_path = os.path.join(os.getcwd(), "res/drawable-xxhdpi")
+            folder_path = os.path.join(os.getcwd(), "res/drawable-xxxhdpi")
             if os.path.exists(folder_path):
                 resizer.resize_all_in_folder(folder_path)
                 resizer.log("Done.")
             else:
-                print("Couldn't find res/drawable-xxhdpi from your current location.")
+                print("Couldn't find res/drawable-xxxhdpi from your current location.")
         elif args.folder_path is not None:
             resizer.resize_all_in_folder(args.folder_path)
             resizer.log("Done.")
