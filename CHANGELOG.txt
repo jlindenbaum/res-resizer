@@ -1,7 +1,12 @@
+0.5.0
+- Default for Android is now xxxhdpi
+- Ability to process iOS app icons for all iOS 6 and iOS 7 app icon sizes. See --app-icon instructions
+- PNG conversion. Runs through a folder and converts everything to PNG. See --png-conv instructions
+
 0.4.0
 - iOS assets can now be resized too!
 - Added flag for -i or -a to target iOS or Android projects.
-- Android defauly folder should now be xxhdpi.
+- Android default folder should now be xxhdpi.
 - Removed android ldpi, no longer required according to Android documentation.
 
 0.3.2

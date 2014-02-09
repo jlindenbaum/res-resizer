@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-(c) 2012-2013 Johannes Lindenbaum
+(c) 2012-2014 Johannes Lindenbaum
 License: MIT License, see LICENSE file for details.
 See README.md for usage and examples.
 """
@@ -12,7 +12,7 @@ import Image
 
 
 class BaseResizer(object):
-    VERSION = '0.4.0'
+    VERSION = '0.5.0'
     SILENCE = False
 
     SCALES = {}
@@ -70,6 +70,12 @@ class BaseResizer(object):
                 self.process_file(input_path, file_name)
 
     def convert_all_in_folder(self, input_path):
+        """
+        Converts all images in provided folder to PNG.
+        This does not alter the file's extension.
+        :param input_path:
+        :return:
+        """
         self.log("Processing folder: " + input_path)
         
         for file_name in os.listdir(input_path):
@@ -173,6 +179,12 @@ class IOSResResize(BaseResizer):
         self.app_icon = process
 
     def process_app_icon(self, input_directory, file_name):
+        """
+        Processes a provided file name into all known iOS app icon sizes (iOS 6/7).
+        :param input_directory:
+        :param file_name:
+        :return:
+        """
         file_path = os.path.join(input_directory, file_name)
         base_name, file_extension = os.path.splitext(file_path)
         base_file_name, extension = os.path.splitext(file_name)
@@ -226,7 +238,6 @@ if __name__ == "__main__":
     argParser.add_argument("-a", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
     argParser.add_argument("--pngconv", default=False, action="store_true", dest="png_convert", help="Convert an image to PNG format")
     argParser.add_argument("--app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
-    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxhdpi subfolder and resizes all the images in that folder.")
     argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxxhdpi subfolder and resizes all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
