@@ -78,9 +78,14 @@ class BaseResizer(object):
                 image = Image.open(os.path.join(input_path, file_name))
                 image.save(os.path.join(input_path, file_name), 'PNG')
 
-    def resize_image(self, file_path, scale):
+    def resize_image(self, file_path, width, height):
+        image = Image.open(file_path)
+        image = image.resize((width, height), Image.ANTIALIAS)
+        return image
+    
+    def scale_image(self, file_path, scale):
         """
-        Opens the passed file_path, resizes that image with scale and
+        Opens the passed file_path, sacles that image with scale parameter and
         returns a new image object with the resized image.
         :rtype : Image
         :param file_path:
@@ -133,7 +138,7 @@ class AndroidResResize(BaseResizer):
         base_name, file_extension = os.path.splitext(file_path)
         if self.can_process_file(file_extension):
             for scale_name, scale_value in self.SCALES.items():
-                new_image = self.resize_image(file_path, scale_value)
+                new_image = self.scale_image(file_path, scale_value)
 
                 # determine if where we're writing to exists
                 scale_dir = "../drawable-" + scale_name + "/"
@@ -155,9 +160,32 @@ class AndroidResResize(BaseResizer):
 
 
 class IOSResResize(BaseResizer):
+    app_icon = False
+    
     SCALES = {
         'non-retina': 0.5,
     }
+    
+    APP_ICON_SIZES = [29, 40, 50, 57, 58, 60, 76, 80, 100, 114, 120, 144, 152]
+
+    def set_process_app_icon(self, process):
+        self.app_icon = process
+
+    def process_app_icon(self, input_directory, file_name):
+        file_path = os.path.join(input_directory, file_name)
+        base_name, file_extension = os.path.splitext(file_path)
+        base_file_name, extension = os.path.splitext(file_name)
+        self.log(base_name + " " + file_extension)
+        if self.should_process_file(base_name, file_extension):
+            for img_size in self.APP_ICON_SIZES:
+                image = self.resize_image(file_path, img_size, img_size)
+                new_file_name = "%s-%dx%d%s" % (base_file_name, img_size, img_size, file_extension)
+                new_file_path = os.path.join(input_directory, new_file_name)
+                try:
+                    self.log("Saving: " + new_file_path)
+                    image.save(new_file_path)
+                except:
+                    print("Could not save image: " + new_file_path)
 
     def should_process_file(self, base_name, file_extension):
         """
@@ -170,7 +198,7 @@ class IOSResResize(BaseResizer):
         can_process = self.can_process_file(file_extension)
         should_process = False
         if can_process:
-            if "@2x" in base_name:
+            if "@2x" in base_name or self.app_icon == True:
                 should_process = True
         return should_process
 
@@ -180,7 +208,7 @@ class IOSResResize(BaseResizer):
         base_name, file_extension = os.path.splitext(file_path)
         if self.should_process_file(base_name, file_extension):
             for scale_name, scale_value in self.SCALES.items():
-                new_image = self.resize_image(file_path, scale_value)
+                new_image = self.scale_image(file_path, scale_value)
 
                 # save processed image
                 new_file_path = os.path.join(input_directory, file_name.replace("@2x", ""))
@@ -196,6 +224,7 @@ if __name__ == "__main__":
     argParser.add_argument("-i", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
     argParser.add_argument("-a", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
     argParser.add_argument("--pngconv", default=False, action="store_true", dest="png_convert", help="Convert an image to PNG format")
+    argParser.add_argument("--app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
     argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxhdpi subfolder and resizes all the images in that folder.")
     argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
@@ -239,7 +268,11 @@ if __name__ == "__main__":
             resizer.log("Done.")
         elif args.file_path is not None:
             input_directory, file_path = os.path.split(args.file_path)
-            resizer.process_file(input_directory, file_path)
+            if args.app_icon:
+                resizer.set_process_app_icon(args.app_icon)
+                resizer.process_app_icon(input_directory, file_path)
+            else:
+                resizer.process_file(input_directory, file_path)
             resizer.log("Done.")
         else:
             print("Must specify file or folder to process.")
