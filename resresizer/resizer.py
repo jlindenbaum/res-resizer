@@ -28,7 +28,7 @@ class BaseResizer(object):
         """
         if silence:
             self.SILENCE = silence
-            
+
     def log(self, message):
         """
         Print to console if script hasn't been silenced
@@ -83,7 +83,17 @@ class BaseResizer(object):
                 image = Image.open(os.path.join(input_path, file_name))
                 image.save(os.path.join(input_path, file_name), 'PNG')
 
-    def resize_image(self, file_path, width, height):
+    def save_image(self, image, file_path):
+        """
+        Saves a passed image object to the file path provided, otherwise an exception is printed.
+        """
+        try:
+            self.log("Saving: " + file_path)
+            image.save(file_path)
+        except:
+            print("Could not save image: " + file_path)
+
+    def resize_image(self, file_path, width=1, height=1,save=False):
         image = Image.open(file_path)
         image = image.resize((width, height), Image.ANTIALIAS)
         return image
@@ -153,11 +163,7 @@ class AndroidResResize(BaseResizer):
 
                 # save processed image
                 output_file_path = os.path.join(output_directory, file_name)
-                try:
-                    self.log("Saving: " + output_file_path)
-                    new_image.save(output_file_path)
-                except:
-                    print("Could not save image: " + output_file_path)
+                self.save_image(new_image, output_file_path)
 
 
 class IOSResResize(BaseResizer):
@@ -188,11 +194,7 @@ class IOSResResize(BaseResizer):
                 image = self.resize_image(file_path, img_size, img_size)
                 new_file_name = "%s-%dx%d%s" % (base_file_name, img_size, img_size, file_extension)
                 new_file_path = os.path.join(input_directory, new_file_name)
-                try:
-                    self.log("Saving: " + new_file_path)
-                    image.save(new_file_path)
-                except:
-                    print("Could not save image: " + new_file_path)
+                self.save_image(image, new_file_path)
 
     def should_process_file(self, base_name, file_extension):
         """
@@ -219,11 +221,7 @@ class IOSResResize(BaseResizer):
 
                 # save processed image
                 new_file_path = os.path.join(input_directory, file_name.replace("@2x", ""))
-                try:
-                    self.log("Saving: " + new_file_path)
-                    new_image.save(new_file_path)
-                except:
-                    print("Could not save image: " + new_file_path)
+                self.save_image(new_image, new_file_path)
 
 
 if __name__ == "__main__":
