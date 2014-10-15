@@ -8,11 +8,10 @@ See README.md for usage and examples.
 
 import argparse
 import os
-import Image
-
+from PIL import Image
 
 class BaseResizer(object):
-    VERSION = '0.5.0'
+    VERSION = '1.0.0'
     SILENCE = False
 
     SCALES = {}
@@ -29,6 +28,14 @@ class BaseResizer(object):
         """
         if silence:
             self.SILENCE = silence
+            
+    def log(self, message):
+        """
+        Print to console if script hasn't been silenced
+        :param message:
+        """
+        if self.SILENCE is False:
+            print(message)
 
     def set_exclude_scale(self, scale):
         """
@@ -38,14 +45,6 @@ class BaseResizer(object):
         :param scale:
         """
         self.EXCLUDE_SCALE = scale
-
-    def log(self, message):
-        """
-        Print to console if script hasn't been silenced
-        :param message:
-        """
-        if self.SILENCE is False:
-            print(message)
 
     def create_dir_if_nonexistant(self, directory):
         """
@@ -132,11 +131,6 @@ class AndroidResResize(BaseResizer):
         'xhdpi': float(2) / 4, 
         'hdpi': float(1.5) / 4,
         'mdpi': float(1) / 4,
-    }
-    
-    NOXX_SCALES = {
-        'hdpi': 0.75,
-        'mdpi': 0.5,
     }
 
     def process_file(self, input_directory, file_name):
@@ -234,16 +228,24 @@ class IOSResResize(BaseResizer):
 
 if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
-    argParser.add_argument("-i", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
-    argParser.add_argument("-a", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
+    
     argParser.add_argument("--pngconv", default=False, action="store_true", dest="png_convert", help="Convert an image to PNG format")
-    argParser.add_argument("--app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
-    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxxhdpi subfolder and resizes all the images in that folder.")
+    argParser.add_argument("--resize", default=None, dest="resize_dimension", help="Resizes following --file argument to WxH dimension")
+    
     argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
     argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
+    
+    argParser.add_argument("-ios", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
+    argParser.add_argument("-android", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
+    
+    argParser.add_argument("--ios-app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
+
     argParser.add_argument("--exclude-scale", default=None, dest="scale", nargs="+", help="Excludes a scale. Separate multiple scales by spaces.")
     argParser.add_argument("--silence", default=False, action="store_true", dest="option_silence", help="Silences all output.")
     argParser.add_argument("-v", default=False, action="store_true", dest="show_version", help="Shows the version.")
+    
+    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxxhdpi subfolder and resizes all the images in that folder.")
+    
     args = argParser.parse_args()
 
     # show version, exit
