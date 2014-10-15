@@ -86,6 +86,8 @@ class BaseResizer(object):
     def save_image(self, image, file_path):
         """
         Saves a passed image object to the file path provided, otherwise an exception is printed.
+        :param image:
+        :param file_path:
         """
         try:
             self.log("Saving: " + file_path)
@@ -93,7 +95,7 @@ class BaseResizer(object):
         except:
             print("Could not save image: " + file_path)
 
-    def resize_image(self, file_path, width=1, height=1,save=False):
+    def resize_image(self, file_path, width=1, height=1, save=False):
         image = Image.open(file_path)
         image = image.resize((width, height), Image.ANTIALIAS)
         return image
@@ -105,6 +107,7 @@ class BaseResizer(object):
         :rtype : Image
         :param file_path:
         :param scale:
+        :return:
         """
         image = Image.open(file_path)
         image_size = image.size
