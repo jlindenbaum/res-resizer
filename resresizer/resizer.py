@@ -96,6 +96,11 @@ class BaseResizer(object):
             print("Could not save image: " + file_path)
 
     def resize_image(self, file_path, width=1, height=1, save=False):
+        """
+        Opens the passed file_path and resizes the image to the
+        provided width and height. Returns the unsaved Image
+        object.
+        """
         image = Image.open(file_path)
         image = image.resize((width, height), Image.ANTIALIAS)
         return image
@@ -173,10 +178,11 @@ class IOSResResize(BaseResizer):
     app_icon = False
     
     SCALES = {
-        'non-retina': 0.5,
+        '@2x': float(2) / 3, # @2x is 2/3
+        '@1x': float(1) / 3
     }
     
-    APP_ICON_SIZES = [29, 40, 50, 57, 58, 60, 76, 80, 100, 114, 120, 144, 152]
+    APP_ICON_SIZES = [29, 40, 44, 50, 57, 58, 60, 66, 76, 80, 87, 100, 114, 120, 144, 152, 180]
 
     def set_process_app_icon(self, process):
         self.app_icon = process
@@ -230,6 +236,7 @@ class IOSResResize(BaseResizer):
 if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
     
+    
     argParser.add_argument("--pngconv", default=False, action="store_true", dest="png_convert", help="Convert an image to PNG format")
     argParser.add_argument("--resize", default=None, dest="resize_dimension", help="Resizes following --file argument to WxH dimension")
     
@@ -253,6 +260,23 @@ if __name__ == "__main__":
     if args.show_version:
         print(BaseResizer.VERSION)
         exit()
+        
+    # convert to png
+    if args.png_convert:
+        resizer = BaseResizer()
+        resizer.set_verbosity(args.option_silence)
+        
+        resizer.log("Converting file(s) to PNG.")
+        if args.file_path is not None:
+            input_directory, file_path = os.path.split(args.file_path)
+            resizer.process_file(input_directory, file_path)
+        elif args.folder_path is not None:
+            resizer.convert_all_in_folder(args.folder_path)
+        else:
+            print("Must specify file or folder to PNG convert")
+            print(argParser.print_help())
+            
+        resizer.log("Done.")
 
     # determine platform
     resizer = None
