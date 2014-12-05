@@ -52,7 +52,7 @@ class BaseResizer(object):
         :param directory:
         """
         if os.path.exists(directory) is False:
-            self.log("Creating output directory for image.")
+            self.log("Creating output directory: " + directory)
             os.makedirs(directory)
 
     def resize_all_in_folder(self, input_path):
@@ -71,7 +71,7 @@ class BaseResizer(object):
     def resize_image(self, folder_path, file_name, width, height, save=True):
         base_name, file_extension = os.path.splitext(file_name)
         if self.can_process_file(file_extension):
-            self.log("Resizing file: " + file_name + " (" + width + ", " + height + ")")
+            self.log("Resizing file: " + file_name + " (" + str(width) + ", " + str(height) + ")")
             
             file_path = os.path.join(folder_path, file_name)
             image = Image.open(file_path)
@@ -137,7 +137,7 @@ class BaseResizer(object):
         if new_height < 1:
             new_height = 1
         
-        return self.resize_file('', file_path, new_width, new_height, save=False)
+        return self.resize_image('', file_path, new_width, new_height, save=False)
 
     def can_process_file(self, file_extension):
         """
@@ -155,6 +155,13 @@ class BaseResizer(object):
 
 
 class AndroidResResize(BaseResizer):
+    """
+    AndroidResResize deals with resizing assets
+    in an xxxhdpi folder. Appropriately scales
+    all assets and puts them into their proper
+    folders.
+    """
+    
     SCALES = {
         'xxhdpi' : float(3) / 4, # xxhdpi is 3/4 of xxxhdpi
         'xhdpi': float(2) / 4, 
@@ -182,10 +189,15 @@ class AndroidResResize(BaseResizer):
 
                 # save processed image
                 output_file_path = os.path.join(output_directory, file_name)
-                new_image.save(otuput_file_path)
+                new_image.save(output_file_path)
 
 
 class IOSResResize(BaseResizer):
+    """
+    IOSResResize deals with resizing app icons for iOS apps.
+    Deals with scaling @3x images down to @2x and @1x
+    """
+    
     app_icon = False
     
     SCALES = {
@@ -193,7 +205,7 @@ class IOSResResize(BaseResizer):
         '@1x': float(1) / 3
     }
     
-    APP_ICON_SIZES = [29, 40, 44, 50, 57, 58, 60, 66, 76, 80, 87, 100, 114, 120, 144, 152, 180]
+    APP_ICON_SIZES = [29, 40, 58, 76, 80, 87, 120, 152, 180]
 
     def set_process_app_icon(self, process):
         self.app_icon = process
@@ -227,7 +239,7 @@ class IOSResResize(BaseResizer):
         can_process = self.can_process_file(file_extension)
         should_process = False
         if can_process:
-            if "@2x" in base_name or self.app_icon == True:
+            if "@3x" in base_name or self.app_icon == True:
                 should_process = True
         return should_process
 
@@ -238,10 +250,13 @@ class IOSResResize(BaseResizer):
         if self.should_process_file(base_name, file_extension):
             for scale_name, scale_value in self.SCALES.items():
                 new_image = self.scale_image(file_path, scale_value)
-
-                # save processed image
-                new_file_path = os.path.join(input_directory, file_name.replace("@2x", ""))
+                new_file_path = os.path.join(input_directory, file_name.replace("@3x", ""))
                 new_image.save(new_file_path)
+
+"""
+Processors for individual arguments.
+Main scipt entry point.
+"""
 
 def process_png_conversion(args):
     resizer = BaseResizer()
@@ -307,6 +322,19 @@ def process_arguments(args=None):
         print("Must specify a platform to perform actions with. -i / -a")
     else:
         resizer.set_verbosity(args.silence)
+        resizer.set_exclude_scale(args.scale)
+        
+        if args.folder_path is not None:
+            resizer.resize_all_in_folder(args.folder_path)
+        elif args.file_path is not None:
+            input_directory, file_path = os.path.split(args.file_path)
+            if args.app_icon:
+                resizer.set_process_app_icon(args.app_icon)
+                resizer.process_app_icon(input_directory, file_path)
+            else:
+                resizer.process_file(input_directory, file_path)
+        else:
+            print("Must specify --folder or --file to process.")
 
 if __name__ == "__main__":
     argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
@@ -322,10 +350,10 @@ if __name__ == "__main__":
     argParser.add_argument("--resize", default=None, dest="resize_dimension", help="Resizes following --file argument to WxH dimension")
 
     
-    argParser.add_argument("-ios", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
-    argParser.add_argument("-android", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
+    argParser.add_argument("-i", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
+    argParser.add_argument("-a", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
     
-    argParser.add_argument("--ios-app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
+    argParser.add_argument("--app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
 
     argParser.add_argument("--silence", default=False, action="store_true", dest="silence", help="Silences all output, except errors.")
     argParser.add_argument("-v", default=False, action="store_true", dest="show_version", help="Shows the version.")
@@ -335,37 +363,3 @@ if __name__ == "__main__":
     args = argParser.parse_args()
 
     process_arguments(args)
-
-    # # execute resizing
-    # if resizer is None:
-    #     print("Must specify resize platform with -i or -a")
-    #     print("")
-    #     print(argParser.print_help())
-    # else:
-    #     resizer.set_verbosity(args.option_silence)
-    #     resizer.set_exclude_scale(args.scale)
-    #
-    #     if args.png_convert and args.folder_path is not None:
-    #         resizer.convert_all_in_folder(args.folder_path)
-    #     elif args.prod:
-    #         folder_path = os.path.join(os.getcwd(), "res/drawable-xxxhdpi")
-    #         if os.path.exists(folder_path):
-    #             resizer.resize_all_in_folder(folder_path)
-    #             resizer.log("Done.")
-    #         else:
-    #             print("Couldn't find res/drawable-xxxhdpi from your current location.")
-    #     elif args.folder_path is not None:
-    #         resizer.resize_all_in_folder(args.folder_path)
-    #         resizer.log("Done.")
-    #     elif args.file_path is not None:
-    #         input_directory, file_path = os.path.split(args.file_path)
-    #         if args.app_icon:
-    #             resizer.set_process_app_icon(args.app_icon)
-    #             resizer.process_app_icon(input_directory, file_path)
-    #         else:
-    #             resizer.process_file(input_directory, file_path)
-    #         resizer.log("Done.")
-    #     else:
-    #         print("Must specify file or folder to process.")
-    #         print("")
-    #         print(argParser.print_help())
