@@ -68,23 +68,26 @@ class BaseResizer(object):
             if file_name[-6:] not in self.UNACCEPTED_EXTENSIONS:
                 self.process_file(input_path, file_name)
 
-    def resize_file(self, folder_path, file_name, width, height):
+    def resize_image(self, folder_path, file_name, width, height, save=True):
         base_name, file_extension = os.path.splitext(file_name)
         if self.can_process_file(file_extension):
             self.log("Resizing file: " + file_name + " (" + width + ", " + height + ")")
             
             file_path = os.path.join(folder_path, file_name)
             image = Image.open(file_path)
-            resized_image = image.resize((int(width), int(height)))
-            resized_image.save(file_path)
+            resized_image = image.resize((int(width), int(height)), Image.ANTIALIAS)
+            
+            if save:
+                resized_image.save(file_path)
+            return resized_image
     
     def resize_folder(self, folder_path, width, height):
         self.log("Processing folder: " + folder_path)
         
         for file_name in os.listdir(folder_path):
-            self.resize_file(folder_path, file_name, width, height)
+            self.resize_image(folder_path, file_name, width, height)
 
-    def png_convert_file(self, folder_path, file_name):
+    def png_convert_image(self, folder_path, file_name):
         """
         Converts the provided folder_path/file_name to PNG.
         If a non-PNG extension file_name is passed in, the file is overwritten.
@@ -112,17 +115,7 @@ class BaseResizer(object):
         self.log("Processing folder: " + folder_path)
         
         for file_name in os.listdir(folder_path):
-            self.png_convert_file(folder_path, file_name)
-
-    def resize_image(self, file_path, width=1, height=1, save=False):
-        """
-        Opens the passed file_path and resizes the image to the
-        provided width and height. Returns the unsaved Image
-        object.
-        """
-        image = Image.open(file_path)
-        image = image.resize((width, height), Image.ANTIALIAS)
-        return image
+            self.png_convert_image(folder_path, file_name)
     
     def scale_image(self, file_path, scale):
         """
@@ -143,9 +136,8 @@ class BaseResizer(object):
             new_width = 1
         if new_height < 1:
             new_height = 1
-
-        new_image = image.resize((new_width, new_height), Image.ANTIALIAS)
-        return new_image
+        
+        return self.resize_file('', file_path, new_width, new_height, save=False)
 
     def can_process_file(self, file_extension):
         """
@@ -219,7 +211,7 @@ class IOSResResize(BaseResizer):
         self.log(base_name + " " + file_extension)
         if self.should_process_file(base_name, file_extension):
             for img_size in self.APP_ICON_SIZES:
-                image = self.resize_image(file_path, img_size, img_size)
+                image = self.resize_image('', file_path, img_size, img_size, save=False)
                 new_file_name = "%s-%dx%d%s" % (base_file_name, img_size, img_size, file_extension)
                 new_file_path = os.path.join(input_directory, new_file_name)
                 image.save(new_file_path)
@@ -259,7 +251,7 @@ def process_png_conversion(args):
     
     if args.file_path is not None:
         input_directory, file_path = os.path.split(args.file_path)
-        resizer.png_convert_file(input_directory, file_path)
+        resizer.png_convert_image(input_directory, file_path)
     elif args.folder_path is not None:
         resizer.png_convert_folder(args.folder_path)
     else:
@@ -279,7 +271,7 @@ def process_resizing(args):
     
     if args.file_path is not None:
         input_directory, file_path = os.path.split(args.file_path)
-        resizer.resize_file(input_directory, file_path, width, height)
+        resizer.resize_image(input_directory, file_path, width, height)
     elif args.folder_path is not None:
         resizer.resize_folder(args.folder_path, width, height)
     else:
