@@ -8,7 +8,9 @@ See README.md for usage and examples.
 
 import argparse
 import os
-from PIL import Image
+
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class BaseResizer(object):
     VERSION = '1.0.0'
@@ -68,7 +70,18 @@ class BaseResizer(object):
             if file_name[-6:] not in self.UNACCEPTED_EXTENSIONS:
                 self.process_file(input_path, file_name)
 
-    def convert_all_in_folder(self, input_path):
+    def png_convert_file(self, folder_path, file_name):
+        
+        base_name, file_extension = os.path.splitext(file_name)
+        if self.can_process_file(file_extension):
+            self.log("Processing file: " + file_name)
+            
+            file_path = os.path.join(folder_path, file_name)
+            image = Image.open(file_path)
+            save_file_path = os.path.join(folder_path, base_name + '.png')
+            image.save(save_file_path, 'png')
+
+    def png_convert_folder(self, input_path):
         """
         Converts all images in provided folder to PNG.
         This does not alter the file's extension.
@@ -78,10 +91,7 @@ class BaseResizer(object):
         self.log("Processing folder: " + input_path)
         
         for file_name in os.listdir(input_path):
-            base_name, file_extension = os.path.splitext(file_name)
-            if self.can_process_file(file_extension):
-                image = Image.open(os.path.join(input_path, file_name))
-                image.save(os.path.join(input_path, file_name), 'PNG')
+            self.png_convert_file(input_path, file_name)
 
     def save_image(self, image, file_path):
         """
@@ -269,12 +279,11 @@ if __name__ == "__main__":
         resizer.log("Converting file(s) to PNG.")
         if args.file_path is not None:
             input_directory, file_path = os.path.split(args.file_path)
-            resizer.process_file(input_directory, file_path)
+            resizer.png_convert_file(input_directory, file_path)
         elif args.folder_path is not None:
-            resizer.convert_all_in_folder(args.folder_path)
+            resizer.png_convert_folder(args.folder_path)
         else:
-            print("Must specify file or folder to PNG convert")
-            print(argParser.print_help())
+            print("Must specify --file or --folder to PNG convert")
             
         resizer.log("Done.")
 
@@ -285,36 +294,36 @@ if __name__ == "__main__":
     elif args.platform_android:
         resizer = AndroidResResize()
 
-    # execute resizing
-    if resizer is None:
-        print("Must specify resize platform with -i or -a")
-        print("")
-        print(argParser.print_help())
-    else:
-        resizer.set_verbosity(args.option_silence)
-        resizer.set_exclude_scale(args.scale)
-
-        if args.png_convert and args.folder_path is not None:
-            resizer.convert_all_in_folder(args.folder_path)
-        elif args.prod:
-            folder_path = os.path.join(os.getcwd(), "res/drawable-xxxhdpi")
-            if os.path.exists(folder_path):
-                resizer.resize_all_in_folder(folder_path)
-                resizer.log("Done.")
-            else:
-                print("Couldn't find res/drawable-xxxhdpi from your current location.")
-        elif args.folder_path is not None:
-            resizer.resize_all_in_folder(args.folder_path)
-            resizer.log("Done.")
-        elif args.file_path is not None:
-            input_directory, file_path = os.path.split(args.file_path)
-            if args.app_icon:
-                resizer.set_process_app_icon(args.app_icon)
-                resizer.process_app_icon(input_directory, file_path)
-            else:
-                resizer.process_file(input_directory, file_path)
-            resizer.log("Done.")
-        else:
-            print("Must specify file or folder to process.")
-            print("")
-            print(argParser.print_help())
+    # # execute resizing
+    # if resizer is None:
+    #     print("Must specify resize platform with -i or -a")
+    #     print("")
+    #     print(argParser.print_help())
+    # else:
+    #     resizer.set_verbosity(args.option_silence)
+    #     resizer.set_exclude_scale(args.scale)
+    #
+    #     if args.png_convert and args.folder_path is not None:
+    #         resizer.convert_all_in_folder(args.folder_path)
+    #     elif args.prod:
+    #         folder_path = os.path.join(os.getcwd(), "res/drawable-xxxhdpi")
+    #         if os.path.exists(folder_path):
+    #             resizer.resize_all_in_folder(folder_path)
+    #             resizer.log("Done.")
+    #         else:
+    #             print("Couldn't find res/drawable-xxxhdpi from your current location.")
+    #     elif args.folder_path is not None:
+    #         resizer.resize_all_in_folder(args.folder_path)
+    #         resizer.log("Done.")
+    #     elif args.file_path is not None:
+    #         input_directory, file_path = os.path.split(args.file_path)
+    #         if args.app_icon:
+    #             resizer.set_process_app_icon(args.app_icon)
+    #             resizer.process_app_icon(input_directory, file_path)
+    #         else:
+    #             resizer.process_file(input_directory, file_path)
+    #         resizer.log("Done.")
+    #     else:
+    #         print("Must specify file or folder to process.")
+    #         print("")
+    #         print(argParser.print_help())
