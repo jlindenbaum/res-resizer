@@ -25,7 +25,7 @@ class BaseResizer(object):
 
     def set_verbosity(self, silence):
         """
-        Set verbosity level of application. Supports verbose or silent
+        Sets verbosity level of the script.
         :param silence:
         """
         if silence:
@@ -42,8 +42,6 @@ class BaseResizer(object):
     def set_exclude_scale(self, scale):
         """
         Set a scale to exclude from processing.
-        Android supports mdpi, hdpi, xhdpi, xxhdpi
-        iOS supports non-retina
         :param scale:
         """
         self.EXCLUDE_SCALE = scale
@@ -70,28 +68,51 @@ class BaseResizer(object):
             if file_name[-6:] not in self.UNACCEPTED_EXTENSIONS:
                 self.process_file(input_path, file_name)
 
+    def resize_file(self, folder_path, file_name, width, height):
+        base_name, file_extension = os.path.splitext(file_name)
+        if self.can_process_file(file_extension):
+            self.log("Resizing file: " + file_name + " (" + width + ", " + height + ")")
+            
+            file_path = os.path.join(folder_path, file_name)
+            image = Image.open(file_path)
+            resized_image = image.resize((int(width), int(height)))
+            resized_image.save(file_path)
+    
+    def resize_folder(self, folder_path, width, height):
+        self.log("Processing folder: " + folder_path)
+        
+        for file_name in os.listdir(folder_path):
+            self.resize_file(folder_path, file_name, width, height)
+
     def png_convert_file(self, folder_path, file_name):
+        """
+        Converts the provided folder_path/file_name to PNG.
+        If a non-PNG extension file_name is passed in, the file is overwritten.
+        Otherwise a .png file will be created. Ex. 'image.jpg' -> 'image.png'.
+        :param folder_path:
+        :param file_name:
+        """
         
         base_name, file_extension = os.path.splitext(file_name)
         if self.can_process_file(file_extension):
-            self.log("Processing file: " + file_name)
+            self.log("Converting file: " + file_name)
             
             file_path = os.path.join(folder_path, file_name)
             image = Image.open(file_path)
             save_file_path = os.path.join(folder_path, base_name + '.png')
             image.save(save_file_path, 'png')
 
-    def png_convert_folder(self, input_path):
+    def png_convert_folder(self, folder_path):
         """
         Converts all images in provided folder to PNG.
-        This does not alter the file's extension.
-        :param input_path:
+        :param folder_path:
         :return:
         """
-        self.log("Processing folder: " + input_path)
         
-        for file_name in os.listdir(input_path):
-            self.png_convert_file(input_path, file_name)
+        self.log("Processing folder: " + folder_path)
+        
+        for file_name in os.listdir(folder_path):
+            self.png_convert_file(folder_path, file_name)
 
     def save_image(self, image, file_path):
         """
@@ -242,30 +263,45 @@ class IOSResResize(BaseResizer):
                 new_file_path = os.path.join(input_directory, file_name.replace("@2x", ""))
                 self.save_image(new_image, new_file_path)
 
+def process_png_conversion(args):
+    resizer = BaseResizer()
+    resizer.set_verbosity(args.silence)
 
-if __name__ == "__main__":
-    argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
+    resizer.log("Converting file(s) to PNG.")
     
+    if args.file_path is not None:
+        input_directory, file_path = os.path.split(args.file_path)
+        resizer.png_convert_file(input_directory, file_path)
+    elif args.folder_path is not None:
+        resizer.png_convert_folder(args.folder_path)
+    else:
+        print("Must specify --file or --folder to convert to PNG.")
     
-    argParser.add_argument("--pngconv", default=False, action="store_true", dest="png_convert", help="Convert an image to PNG format")
-    argParser.add_argument("--resize", default=None, dest="resize_dimension", help="Resizes following --file argument to WxH dimension")
-    
-    argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
-    argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
-    
-    argParser.add_argument("-ios", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
-    argParser.add_argument("-android", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
-    
-    argParser.add_argument("--ios-app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
+    resizer.log("Done.")
+    exit()
 
-    argParser.add_argument("--exclude-scale", default=None, dest="scale", nargs="+", help="Excludes a scale. Separate multiple scales by spaces.")
-    argParser.add_argument("--silence", default=False, action="store_true", dest="option_silence", help="Silences all output.")
-    argParser.add_argument("-v", default=False, action="store_true", dest="show_version", help="Shows the version.")
+def process_resizing(args):
+    resizer = BaseResizer()
+    resizer.set_verbosity(args.silence)
     
-    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxxhdpi subfolder and resizes all the images in that folder.")
+    resizer.log("Resizing file(s) to " + args.resize_dimension)
     
-    args = argParser.parse_args()
+    width, height = args.resize_dimension.split('x')
+    # TODO: Verify width, height are valid numbers
+    
+    if args.file_path is not None:
+        input_directory, file_path = os.path.split(args.file_path)
+        resizer.resize_file(input_directory, file_path, width, height)
+    elif args.folder_path is not None:
+        resizer.resize_folder(args.folder_path, width, height)
+    else:
+        print("Must specify --file or --folder to resize image.")        
+    
+    resizer.log("Done.")
+    exit();
 
+def process_arguments(args=None):
+    
     # show version, exit
     if args.show_version:
         print(BaseResizer.VERSION)
@@ -273,19 +309,11 @@ if __name__ == "__main__":
         
     # convert to png
     if args.png_convert:
-        resizer = BaseResizer()
-        resizer.set_verbosity(args.option_silence)
-        
-        resizer.log("Converting file(s) to PNG.")
-        if args.file_path is not None:
-            input_directory, file_path = os.path.split(args.file_path)
-            resizer.png_convert_file(input_directory, file_path)
-        elif args.folder_path is not None:
-            resizer.png_convert_folder(args.folder_path)
-        else:
-            print("Must specify --file or --folder to PNG convert")
-            
-        resizer.log("Done.")
+        process_png_conversion(args)
+    
+    # resize
+    if args.resize_dimension is not None:
+        process_resizing(args)
 
     # determine platform
     resizer = None
@@ -293,6 +321,40 @@ if __name__ == "__main__":
         resizer = IOSResResize()
     elif args.platform_android:
         resizer = AndroidResResize()
+
+    # execute
+    if resizer is None:
+        print("Must specify a platform to perform actions with. -i / -a")
+    else:
+        resizer.set_verbosity(args.silence)
+
+if __name__ == "__main__":
+    argParser = argparse.ArgumentParser(description="Automatically resize images for iOS and Android")
+
+    # platform agnostic operations
+    argParser.add_argument("--pngconv", default=False, action="store_true", dest="png_convert", help="Convert an image to PNG format")
+    
+    # arguments
+    argParser.add_argument("--folder", default=None, dest="folder_path", help="Resizes all images in provided folder path.")
+    argParser.add_argument("--file", default=None, dest="file_path", help="Resizes individual file provided by folder path.")
+    argParser.add_argument("--exclude-scale", default=None, dest="scale", nargs="+", help="Excludes a scale. Separate multiple scales by spaces.")
+    
+    argParser.add_argument("--resize", default=None, dest="resize_dimension", help="Resizes following --file argument to WxH dimension")
+
+    
+    argParser.add_argument("-ios", default=False, action="store_true", dest="platform_ios", help="Scale images for iOS projects")
+    argParser.add_argument("-android", default=False, action="store_true", dest="platform_android", help="Scale images for Android projects")
+    
+    argParser.add_argument("--ios-app-icon", default=False, action="store_true", dest="app_icon", help="Takes big image and sizes it for all iOS icon sizes. Use with --i and --file")
+
+    argParser.add_argument("--silence", default=False, action="store_true", dest="silence", help="Silences all output, except errors.")
+    argParser.add_argument("-v", default=False, action="store_true", dest="show_version", help="Shows the version.")
+    
+    argParser.add_argument("--prod", default=None, action="store_true", dest="prod", help="Looks for res/drawable-xxxhdpi subfolder and resizes all the images in that folder.")
+    
+    args = argParser.parse_args()
+
+    process_arguments(args)
 
     # # execute resizing
     # if resizer is None:
