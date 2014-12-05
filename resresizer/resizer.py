@@ -114,18 +114,6 @@ class BaseResizer(object):
         for file_name in os.listdir(folder_path):
             self.png_convert_file(folder_path, file_name)
 
-    def save_image(self, image, file_path):
-        """
-        Saves a passed image object to the file path provided, otherwise an exception is printed.
-        :param image:
-        :param file_path:
-        """
-        try:
-            self.log("Saving: " + file_path)
-            image.save(file_path)
-        except:
-            print("Could not save image: " + file_path)
-
     def resize_image(self, file_path, width=1, height=1, save=False):
         """
         Opens the passed file_path and resizes the image to the
@@ -202,7 +190,7 @@ class AndroidResResize(BaseResizer):
 
                 # save processed image
                 output_file_path = os.path.join(output_directory, file_name)
-                self.save_image(new_image, output_file_path)
+                new_image.save(otuput_file_path)
 
 
 class IOSResResize(BaseResizer):
@@ -234,7 +222,7 @@ class IOSResResize(BaseResizer):
                 image = self.resize_image(file_path, img_size, img_size)
                 new_file_name = "%s-%dx%d%s" % (base_file_name, img_size, img_size, file_extension)
                 new_file_path = os.path.join(input_directory, new_file_name)
-                self.save_image(image, new_file_path)
+                image.save(new_file_path)
 
     def should_process_file(self, base_name, file_extension):
         """
@@ -261,7 +249,7 @@ class IOSResResize(BaseResizer):
 
                 # save processed image
                 new_file_path = os.path.join(input_directory, file_name.replace("@2x", ""))
-                self.save_image(new_image, new_file_path)
+                new_image.save(new_file_path)
 
 def process_png_conversion(args):
     resizer = BaseResizer()
