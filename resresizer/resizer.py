@@ -212,7 +212,9 @@ class IOSResResize(BaseResizer):
 
     def process_app_icon(self, input_directory, file_name):
         """
-        Processes a provided file name into all known iOS app icon sizes (iOS 6/7).
+        Process provided file into app icons. The script processes
+        everything required for the 4S and up.
+        
         :param input_directory:
         :param file_name:
         :return:
@@ -244,13 +246,15 @@ class IOSResResize(BaseResizer):
         return should_process
 
     def process_file(self, input_directory, file_name):
-        # determine file extension
         file_path = os.path.join(input_directory, file_name)
         base_name, file_extension = os.path.splitext(file_path)
+        
         if self.should_process_file(base_name, file_extension):
+            stripped_base_name = base_name.replace("@3x", "")
+            
             for scale_name, scale_value in self.SCALES.items():
                 new_image = self.scale_image(file_path, scale_value)
-                new_file_path = os.path.join(input_directory, file_name.replace("@3x", ""))
+                new_file_path = os.path.join(input_directory, stripped_base_name + scale_name + file_extension)
                 new_image.save(new_file_path)
 
 """
