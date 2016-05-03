@@ -201,11 +201,11 @@ class IOSResResize(BaseResizer):
     app_icon = False
     
     SCALES = {
-        '@2x': float(2) / 3, # @2x is 2/3
-        '@1x': float(1) / 3
+        '@2x': float(0.66666666666666),
+        '@1x': float(0.33333333333333)
     }
     
-    APP_ICON_SIZES = [29, 40, 58, 76, 80, 87, 120, 152, 180]
+    APP_ICON_SIZES = [29, 40, 58, 76, 80, 87, 120, 152, 167, 180]
 
     def set_process_app_icon(self, process):
         self.app_icon = process
