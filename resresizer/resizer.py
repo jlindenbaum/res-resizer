@@ -17,12 +17,13 @@ def resize_image(file_path, width, height):
 def process_file(source_image=None, width=0, height=0, destination='./', destination_suffix=''):
     # source image file info
     source_directory, source_file_name = os.path.split(source_image)
-    source_base_name, source_file_extension = os.path.splitext(source_image)
+    source_base_name, source_file_extension = os.path.splitext(source_file_name)
     
     image = resize_image(source_image, width, height)
-
+    log("Source dir: %s source base: %s" % (source_directory, source_base_name))
     target_image_file_name = "%s%s%s" % (source_base_name, destination_suffix, source_file_extension)
-    target_image = os.path.join(destination, target_image_file_name)
+    log("Target file name %s" % target_image_file_name)
+    target_image = os.path.join(source_directory, destination, target_image_file_name)
     log("Target: %s" % target_image)
 
     image.save(target_image)
@@ -47,8 +48,8 @@ def start_processing(source_file, size, plugin_module):
         process_height = int(height) * scale
         destination = plugin.config[scale][0]
         file_suffix = plugin.config[scale][1]
-        log("Scale factor %s. Size %sx%s. Dest %s. Suffix %s." % (scale, process_width, process_height, destination, file_suffix))
-        process_file(source_file, process_width, process_height, destination, file_suffix)
+        log("Scale factor %s. Size %sx%s. Dest %s. Suffix %s." % (scale, int(process_width), int(process_height), destination, file_suffix))
+        process_file(source_file, int(process_width), int(process_height), destination, file_suffix)
 
 
 # base case
